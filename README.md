@@ -59,6 +59,53 @@ pnpm install           # 依存関係をインストール（install script は�
 pnpm run setup-hooks    # lefthook の git hooks を有効化（lefthook install）
 ```
 
+## GitHub の「テンプレートリポジトリ」として使う場合
+
+このリポジトリを「Use this template」で生成したときに、新しいリポジトリの設定
+（マージ方式、Wiki 無効化、脆弱性アラートなど）を自動でいい感じにする仕組みを
+`.github/workflows/template-setup.yml` に用意しています。
+
+### 前提: このリポジトリ側で一度だけやること
+
+GitHub の Settings → General → **Template repository** にチェックを入れてください。
+これをやっていないと、`template-setup.yml` は「テンプレートから生成された新しい
+リポジトリ」と「テンプレート自身（このリポジトリ）」を区別できず、**このリポジトリ
+自身への次回 push で誤って自己削除しようとします**（後述の仕組み参照）。
+
+### 仕組み
+
+GitHub には「テンプレートから生成された」ことを検知する専用のイベントが存在しません
+（[公式コミュニティディスカッションで明言済み](https://github.com/orgs/community/discussions/52965)）。
+そのため `template-setup.yml` は毎回の `push` で起動しつつ、
+`github.event.repository.is_template` を見て次のように動作を分けています。
+
+- テンプレート自身（`is_template: true`）: 何もしない
+- テンプレートから生成された新しいリポジトリ（`is_template: false`）: 設定を反映し、
+  最後に自分自身（このワークフローファイル）を削除するコミットを push します。
+  これにより 2 回目以降の push では起動すらしなくなります。
+
+### 設定変更には admin 権限の PAT が必要
+
+リポジトリ設定（マージ方式、Wiki、脆弱性アラートなど）を API から変更するには
+リポジトリの admin 権限が必要ですが、`GITHUB_TOKEN` にはその権限を一切付与でき
+ません（`administration` という permission scope 自体が存在しないため。詳細は
+CodeQL/Dependency Review の項を参照）。そのため、新しいリポジトリの Settings →
+Secrets and variables → Actions で **`TEMPLATE_SETUP_TOKEN`** という名前の
+シークレットに、admin 権限を持つ Personal Access Token（Fine-grained PAT の
+"Administration: write" など）を登録してください。登録しなければ設定変更は
+スキップされますが、ワークフロー自身の自己削除は行われます。
+
+反映される設定（`template-setup.yml` 内で調整可能）:
+
+- マージ済みブランチの自動削除
+- 自動マージの有効化
+- squash merge のみ許可（merge commit / rebase merge は無効化）
+- Wiki を無効化
+- 脆弱性アラート（Dependabot alerts）と自動セキュリティ修正を有効化
+
+ブランチ保護ルールなど、プロジェクトによって好みが分かれる設定はあえて含めて
+いません。必要なら同じ `gh api` の要領で `template-setup.yml` に追記してください。
+
 ### なぜ `.npmrc` ではなく `pnpm-workspace.yaml` なのか
 
 pnpm 11 で実際に検証した結果、`.npmrc` の `ignore-scripts=true`（npm 由来の
