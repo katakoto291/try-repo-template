@@ -1,0 +1,71 @@
+name: Template Setup
+
+# GitHub has no event that fires when a repo is generated from a template
+# (confirmed: https://github.com/orgs/community/discussions/52965), so this
+# runs on every push and uses `is_template` to tell the two cases apart:
+# the source template repo has is_template=true, a repo generated from it
+# has is_template=false. It only does anything on that second case, and
+# deletes itself afterwards so it never runs a second time.
+#
+# PREREQUISITE: this repo must have "Template repository" enabled in
+# Settings for the check below to work. If that's off, is_template is
+# false here too, and this workflow would try to configure and remove
+# itself on the *template* repo's own next push.
+#
+# No branch filter here on purpose: `$default-branch` only gets substituted
+# in org-level workflow *templates* (the "New workflow" starter picker),
+# not when a repository is generated from a *repository* template like this
+# one, and we can't know what the generated repo's default branch will be
+# named ahead of time.
+on:
+  push:
+
+jobs:
+  setup:
+    if: ${{ !github.event.repository.is_template }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      # Repository settings (merge options, wiki, vulnerability alerts, ...)
+      # are only writable through the API with repo-admin rights, and
+      # GITHUB_TOKEN can never be granted that - "administration" isn't a
+      # permission scope it supports at all. A personal access token (or
+      # GitHub App installation token) with admin rights on this repo has
+      # to be supplied via the TEMPLATE_SETUP_TOKEN secret for the step below
+      # to do anything; otherwise it's skipped and only the self-removal
+      # still happens. See README for how to set that secret.
+      TEMPLATE_SETUP_TOKEN: ${{ secrets.TEMPLATE_SETUP_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure repository settings
+        if: ${{ env.TEMPLATE_SETUP_TOKEN != '' }}
+        env:
+          GH_TOKEN: ${{ env.TEMPLATE_SETUP_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api -X PATCH "repos/$REPO" \
+            -F delete_branch_on_merge=true \
+            -F allow_auto_merge=true \
+            -F allow_squash_merge=true \
+            -F allow_merge_commit=false \
+            -F allow_rebase_merge=false \
+            -F has_wiki=false
+
+          gh api -X PUT "repos/$REPO/vulnerability-alerts"
+          gh api -X PUT "repos/$REPO/automated-security-fixes"
+
+      - name: Report skipped configuration
+        if: ${{ env.TEMPLATE_SETUP_TOKEN == '' }}
+        run: |
+          echo "::warning::TEMPLATE_SETUP_TOKEN secret not set, so repository settings were not changed. Configure them manually, or add the secret and re-run this workflow before it removes itself (see README)."
+
+      - name: Remove this workflow (runs once)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/template-setup.yml
+          git commit -m "chore: remove one-time template setup workflow"
+          git push
