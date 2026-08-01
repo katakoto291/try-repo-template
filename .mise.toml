@@ -2,7 +2,7 @@
 node = "22"
 pnpm = "11.18.0"
 
-[tasks.lint]
+[tasks.check]
 description = "Run biome check"
 run = "biome check ."
 
@@ -15,5 +15,5 @@ description = "Run vitest across all workspaces"
 run = "vitest run"
 
 [tasks.setup-hooks]
-description = "Point git at the versioned hooks directory (run once after clone)"
-run = "git config core.hooksPath .githooks"
+description = "Install lefthook's git hooks (run once after clone)"
+run = "pnpm exec lefthook install"
