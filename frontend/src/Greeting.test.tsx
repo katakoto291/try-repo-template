@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
+
+import { Greeting } from "@frontend/components/Greeting";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { Greeting } from "@/components/Greeting";
 
 afterEach(() => {
   cleanup();

@@ -11,7 +11,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "dev:backend": "tsx watch backend/src/index.ts",
+    "dev:backend": "tsx watch --tsconfig backend/tsconfig.json backend/src/index.ts",
     "dev:frontend": "tsx watch --tsconfig frontend/tsconfig.json frontend/src/index.ts",
     "check": "biome check .",
     "check:fix": "biome check --write .",
