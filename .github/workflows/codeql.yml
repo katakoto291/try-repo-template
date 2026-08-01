@@ -9,7 +9,38 @@ on:
     - cron: "24 3 * * 1"
 
 jobs:
+  check-eligibility:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      eligible: ${{ steps.check.outputs.eligible }}
+    steps:
+      # CodeQL is free on public repos. On a private repo it requires
+      # GitHub Advanced Security, but checking that status needs repo-admin
+      # access, which GITHUB_TOKEN cannot be granted (there is no
+      # "administration" permission scope for it) - so we can only reliably
+      # check public/private here. If this repo ever goes private *with*
+      # GHAS enabled, change the condition below to `eligible=true`
+      # unconditionally, or gate it on a repository variable instead.
+      - name: Check whether CodeQL analysis is usable
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          private=$(gh api "repos/$REPO" --jq '.private')
+          if [ "$private" = "false" ]; then
+            echo "Public repo: CodeQL is free to use."
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Repository is private; CodeQL needs GitHub Advanced Security, which can't be auto-detected with GITHUB_TOKEN. Skipping. See this workflow's comments to override."
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+          fi
+
   analyze:
+    needs: check-eligibility
+    if: needs.check-eligibility.outputs.eligible == 'true'
     name: Analyze (javascript-typescript)
     runs-on: ubuntu-latest
     permissions:
