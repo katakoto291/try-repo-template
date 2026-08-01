@@ -109,6 +109,13 @@ pnpm run setup-repo-settings
 `restrictions`（push できるユーザー/チームの制限）は `null` のままにしています。
 必要なら `branch-protection.json` に項目を足してください（[利用可能なフィールド一覧](https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection)）。
 
+`.github/CODEOWNERS` は雛形として空（ルール 0 件）のまま置いています。中身が
+空の CODEOWNERS は、`required_pull_request_reviews.require_code_owner_reviews`
+を `true` にしても実質何も強制しません（Write 権限以上の誰かが承認すれば
+マージできてしまいます）。使う場合はファイル内のコメントを参考にオーナーを
+書き、`branch-protection.json` の `require_code_owner_reviews` を `true` に
+してください。
+
 GitHub Actions 上で自動実行する方式（`push` イベント + `is_template` での判定）も
 検討しましたが、リポジトリ設定の変更には admin 権限が要るのに `GITHUB_TOKEN` には
 それを付与できず（`administration` という permission scope 自体が存在しない）、
