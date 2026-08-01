@@ -239,17 +239,21 @@ esbuild で都度変換するため、この問題が起きません。実行し
 付けていません（`frontend` だけで要望があったのと、`@repo/shared` のようにパッケージ
 名で参照するものとの混同を避けるためです）。
 
-3 箇所で同じマッピングを持っているので、変更するときは揃えて直してください
-（TypeScript / Vite 系ツールが tsconfig の `paths` を自動で読んでくれないための
-制約です）。
+実体は `frontend/tsconfig.json` の `compilerOptions.paths` 1 箇所だけです
+（`tsc -b` の型チェックはこれで解決します）。それ以外のツールは tsconfig の
+`paths` を自動では読んでくれないので、それぞれ次の形で追従させています。
 
-- `frontend/tsconfig.json` の `compilerOptions.paths`（`tsc -b` の型チェック用）
-- `vitest.config.ts` の `resolve.alias`（Vitest 用。実際に検証したところ、Vite は
-  tsconfig の `paths` を自動では見てくれず、素の `import "@/..."` はテストの
-  実行時に解決できませんでした）
-- `package.json` の `dev:frontend` スクリプトの `tsx watch --tsconfig
-  frontend/tsconfig.json ...`（tsx 用。`--tsconfig` を付けないと、リポジトリ
-  ルートから `pnpm run dev:frontend` で実行した際に `@/` を解決できないことを
-  実際に確認しています。tsx は実行時のカレントディレクトリを起点に
-  tsconfig.json を探すため、`frontend` ディレクトリの中から実行すれば
-  `--tsconfig` は無くても動きますが、明示しておく方が安全です）
+- **Vitest**: [`vite-tsconfig-paths`](https://github.com/aleclarson/vite-tsconfig-paths)
+  プラグインを `vitest.config.ts` の `plugins` に追加。手書きの `resolve.alias`
+  を用意しなくても `frontend/tsconfig.json` の `paths` を読んで解決してくれる
+  ことを実際に確認済みです（`typescript` の peer dependency 指定が `^5.0.0`
+  のままで pnpm がインストール時に警告を出しますが、TypeScript 7.0.2 でも
+  実際の解決は問題なく動いています）。
+- **tsx**: `package.json` の `dev:frontend` スクリプトで `tsx watch --tsconfig
+  frontend/tsconfig.json ...` のように明示しています。tsx 自体は tsconfig の
+  `paths` に対応していますが、実行時のカレントディレクトリを起点に
+  tsconfig.json を探すため、`--tsconfig` を付けないとリポジトリルートから
+  `pnpm run dev:frontend` で実行した際に `@/` を解決できないことを実際に
+  確認しています（`frontend` ディレクトリの中から実行すれば無くても動きますが、
+  明示しておく方が安全です）。`vite-tsconfig-paths` は Vite/Vitest 用のプラグイン
+  なので tsx には使えません。
