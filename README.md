@@ -16,6 +16,21 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 無 scope の `shared` という名前だと将来同名の npm パッケージと衝突しうるため、
 `@repo/*` スコープを付けています。
 
+### frontend ⇔ backend の import 境界
+
+`frontend` と `backend` は互いに import できません。共有したいコードは
+`@repo/shared` に置いてください。
+
+- `tsc -b`（`typecheck`/`build`）は各パッケージの `tsconfig.json` の `rootDir`
+  制約により、相対パスで隣のパッケージを import すると型エラーになります
+  （`TS6059`/`TS6307`）。
+- ただし `tsx`/Vitest は型チェックをしないため `rootDir` 違反があっても
+  実行できてしまいます。これを実際に検証した上で、`biome.json` の
+  `overrides` に `lint/style/noRestrictedImports` を追加し、`frontend/**` から
+  `**/backend/**` 相当のパス、`backend/**` から `**/frontend/**` 相当のパスへの
+  import を lint エラーにしています。`pnpm run check` と lefthook の
+  pre-commit で拾われるので、`tsc -b` を待たずに気付けます。
+
 ## ツールチェイン
 
 - **バージョン管理**: [mise](https://mise.jdx.dev/)（`mise.toml` に Node / pnpm のバージョンを固定）
@@ -119,6 +134,12 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 `pnpm-workspace.yaml` の `minimumReleaseAge` と同じ 3 日を設定しています
 （揃えないと、CI の cooldown チェックで弾かれる更新 PR を Dependabot が
 提案してしまうため）。
+
+`@types/node` のように更新頻度の高いパッケージだけ PR が乱発されるのを避けるため、
+`groups` でまとめています。`npm` エコシステムは `react`（react/react-dom/
+@types/react/@types/react-dom）と `dev-tooling`（それ以外全部）の 2 グループ、
+`github-actions` は 1 グループにまとめ、更新の種類（major/minor/patch）に
+関わらず該当パッケージが同時に更新されれば 1 本の PR にまとまります。
 
 ### CodeQL / Dependency Review の利用可否チェック
 
