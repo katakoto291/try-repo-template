@@ -2,7 +2,10 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "@backend/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "references": [{ "path": "../shared" }]
