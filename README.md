@@ -231,3 +231,25 @@ esbuild で都度変換するため、この問題が起きません。実行し
 `src/index.ts` を直接指しています。これにより `tsx` や Vitest がビルド不要で
 即座にソースを解決できます（`tsc -b` によるビルド/宣言ファイル生成自体は
 `build`/`typecheck` スクリプトとして引き続き利用できます）。
+
+### `frontend` 内の `@/` エイリアス
+
+`frontend` 配下のファイルからは `@/` で `frontend/src/` を指せます
+（例: `import { Button } from "@/components/Button"`）。`backend`/`shared` には
+付けていません（`frontend` だけで要望があったのと、`@repo/shared` のようにパッケージ
+名で参照するものとの混同を避けるためです）。
+
+3 箇所で同じマッピングを持っているので、変更するときは揃えて直してください
+（TypeScript / Vite 系ツールが tsconfig の `paths` を自動で読んでくれないための
+制約です）。
+
+- `frontend/tsconfig.json` の `compilerOptions.paths`（`tsc -b` の型チェック用）
+- `vitest.config.ts` の `resolve.alias`（Vitest 用。実際に検証したところ、Vite は
+  tsconfig の `paths` を自動では見てくれず、素の `import "@/..."` はテストの
+  実行時に解決できませんでした）
+- `package.json` の `dev:frontend` スクリプトの `tsx watch --tsconfig
+  frontend/tsconfig.json ...`（tsx 用。`--tsconfig` を付けないと、リポジトリ
+  ルートから `pnpm run dev:frontend` で実行した際に `@/` を解決できないことを
+  実際に確認しています。tsx は実行時のカレントディレクトリを起点に
+  tsconfig.json を探すため、`frontend` ディレクトリの中から実行すれば
+  `--tsconfig` は無くても動きますが、明示しておく方が安全です）
