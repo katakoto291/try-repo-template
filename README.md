@@ -17,7 +17,8 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 ## ツールチェイン
 
 - **バージョン管理**: [mise](https://mise.jdx.dev/)（`.mise.toml` に Node / pnpm のバージョンを固定）
-- **パッケージマネージャ**: pnpm workspaces
+- **パッケージマネージャ**: pnpm workspaces（pnpm 固有の設定は `.npmrc` ではなく
+  `pnpm-workspace.yaml` に一本化。理由は後述）
 - **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
 - **Lint / Format**: [Biome](https://biomejs.dev/)
 - **Git hooks**: [lefthook](https://lefthook.dev/)
@@ -35,11 +36,22 @@ pnpm install           # 依存関係をインストール（install script は�
 pnpm run setup-hooks    # lefthook の git hooks を有効化（lefthook install）
 ```
 
+### なぜ `.npmrc` ではなく `pnpm-workspace.yaml` なのか
+
+pnpm 11 で実際に検証した結果、`.npmrc` の `ignore-scripts=true`（npm 由来の
+kebab-case キー）は **依存パッケージの build script には効くものの、
+ルートパッケージ自身の `postinstall`/`prepare` スクリプトには効きません**
+でした。同じ設定を `pnpm-workspace.yaml` に `ignoreScripts: true`（camelCase）
+として書くと、ルート自身のスクリプトも含めて確実にブロックされることを確認済みです。
+`minimumReleaseAge` や `engineStrict` も同様に `pnpm-workspace.yaml`側でのみ
+確実に機能したため、pnpm 固有の設定はすべてこちらに寄せています。
+
 ### install script について
 
-`.npmrc` で `ignore-scripts=true` を設定し、依存パッケージのライフサイクルスクリプト
-（`postinstall` など）を実行しないようにしています。ビルドスクリプトの実行が
-必要なパッケージがある場合は、無効化を解除する代わりに `pnpm-workspace.yaml` の
+`pnpm-workspace.yaml` で `ignoreScripts: true` を設定し、依存パッケージのライフ
+サイクルスクリプト（`postinstall` など）やルートパッケージ自身のスクリプトを
+実行しないようにしています。ビルドスクリプトの実行が必要なパッケージがある場合は、
+無効化を解除する代わりに同じファイルの
 [`allowBuilds`](https://pnpm.io/settings#allowbuilds) でパッケージ単位に許可してください。
 
 ```yaml
@@ -55,19 +67,19 @@ allowBuilds:
 
 ### 依存の cooldown（供給網対策）
 
-`.npmrc` の `minimum-release-age=4320` により、公開されてから 72 時間
-（3 日 / 4320 分）未満のバージョンはインストールされません。公開直後に混入した
-悪意あるバージョンを踏むリスクを下げるための設定です。必要に応じて分単位で
-延長・短縮できます。
+`pnpm-workspace.yaml` の `minimumReleaseAge: 4320` により、公開されてから
+72 時間（3 日 / 4320 分）未満のバージョンはインストールされません。公開直後に
+混入した悪意あるバージョンを踏むリスクを下げるための設定です。必要に応じて
+分単位で延長・短縮できます。
 
-`pnpm-workspace.yaml` で `minimumReleaseAgeStrict: true` も設定しています。
-これがないと `pnpm add <pkg>@<公開直後のバージョン>` のように明示的に指定した
-場合はcooldownをすり抜けて `minimumReleaseAgeExclude` に自動追加されてしまうため、
-strict モードで明示指定でも必ずエラーで止まるようにしています。
+同じファイルの `minimumReleaseAgeStrict: true` も重要です。これがないと
+`pnpm add <pkg>@<公開直後のバージョン>` のように明示的に指定した場合は
+cooldown をすり抜けて `minimumReleaseAgeExclude` に自動追加されてしまうため、
+strict モードで明示指定でも必ずエラーで止まるようにしています
+（実際に公開 1 日以内のバージョンを指定してエラーになることを確認済み）。
 
 自分たちのスコープ付きパッケージなど、公開直後でも即座に取得したいものは
-`.npmrc` ではなく `pnpm-workspace.yaml` の `minimumReleaseAgeExclude` に
-書く必要があります（`.npmrc` では効きません）。
+`pnpm-workspace.yaml` の `minimumReleaseAgeExclude` に書いてください。
 
 ## よく使うコマンド
 
@@ -86,7 +98,7 @@ pre-commit フックがステージされた変更に対して `biome check --st
 
 クローン後に一度だけ `pnpm run setup-hooks`（内部で `lefthook install` を実行、
 `mise run setup-hooks` でも可）を実行してください。lefthook 自身の postinstall
-スクリプトは `lefthook install` を自動実行するものですが、`ignore-scripts=true`
+スクリプトは `lefthook install` を自動実行するものですが、`ignoreScripts: true`
 の方針と合わせるため意図的に無効化し、手動セットアップにしています。
 
 ## モジュール解決の注意
