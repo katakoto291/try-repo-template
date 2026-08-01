@@ -1,0 +1,13 @@
+# This file is currently empty (no ownership rules). GitHub's "Require
+# review from Code Owners" branch protection setting has no effect while
+# that's true, even if enabled - see README for details.
+#
+# To use it: uncomment/add rules below (later rules win for a given path),
+# then set required_pull_request_reviews.require_code_owner_reviews to
+# true in .github/branch-protection.json.
+#
+# * @global-owner1 @global-owner2
+# /frontend/ @frontend-team
+# /backend/ @backend-team
+# /shared/ @global-owner1
+# *.md @docs-team
