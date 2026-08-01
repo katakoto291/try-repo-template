@@ -4,6 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "jsx": "react-jsx",
+    "types": ["node", "@testing-library/jest-dom"],
     "paths": {
       "@/*": ["./src/*"]
     }

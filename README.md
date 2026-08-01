@@ -41,7 +41,11 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
 - **`.ts` 直接実行**: [tsx](https://tsx.is/)（`pnpm run dev:backend` / `dev:frontend`）
 - **UI**: React（`frontend` のみ。`tsconfig.json` で `jsx: "react-jsx"`、
-  `*.test.tsx` も Vitest の対象）
+  `*.test.tsx` も Vitest の対象）。コンポーネントのテスト例として
+  `frontend/src/components/Greeting.tsx` と `frontend/src/Greeting.test.tsx`
+  を用意しています（[Testing Library](https://testing-library.com/) +
+  jsdom。テストファイル先頭の `// @vitest-environment jsdom` コメントで、
+  この 1 ファイルだけ実行環境を `node` から `jsdom` に切り替えています）
 - **Lint / Format**: [Biome](https://biomejs.dev/)
 - **Git hooks**: [lefthook](https://lefthook.dev/)
 - **テスト**: [Vitest](https://vitest.dev/)
@@ -257,3 +261,10 @@ esbuild で都度変換するため、この問題が起きません。実行し
   確認しています（`frontend` ディレクトリの中から実行すれば無くても動きますが、
   明示しておく方が安全です）。`vite-tsconfig-paths` は Vite/Vitest 用のプラグイン
   なので tsx には使えません。
+
+上の 2 つはあらかじめ設定済みなので、**新しいエイリアスを追加・変更したいときは
+`frontend/tsconfig.json` の `paths` を編集するだけ**で OK です。実際に
+`"@components/*": ["./src/components/*"]` を追記しただけの状態で、`vitest.config.ts`
+と `package.json` を一切変更せずに Vitest・`tsc -b`・tsx の 3 つとも解決できる
+ことを確認してから、サンプルとして冗長になるため取り下げています（現状は `@/*`
+1 本のみ）。
