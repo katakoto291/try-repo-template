@@ -19,7 +19,12 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/backend/**", "backend", "backend/**"],
+                    "group": [
+                      "**/backend/**",
+                      "backend",
+                      "backend/**",
+                      "@backend/**"
+                    ],
                     "message": "frontend must not import from backend; share code via @repo/shared instead."
                   }
                 ]
@@ -39,8 +44,42 @@
               "options": {
                 "patterns": [
                   {
-                    "group": ["**/frontend/**", "frontend", "frontend/**"],
+                    "group": [
+                      "**/frontend/**",
+                      "frontend",
+                      "frontend/**",
+                      "@frontend/**"
+                    ],
                     "message": "backend must not import from frontend; share code via @repo/shared instead."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["shared/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/frontend/**",
+                      "frontend",
+                      "frontend/**",
+                      "@frontend/**",
+                      "**/backend/**",
+                      "backend",
+                      "backend/**",
+                      "@backend/**"
+                    ],
+                    "message": "shared must not import from frontend or backend; shared code should have no dependency on the packages that consume it."
                   }
                 ]
               }
