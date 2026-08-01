@@ -78,21 +78,30 @@ pnpm run setup-repo-settings
 ```
 
 `.github/repo-settings.json` の内容を `gh api` で現在のリポジトリに反映し、
-続けて脆弱性アラート（Dependabot alerts）と自動セキュリティ修正を有効化します
-（実体は `scripts/apply-repo-settings.sh`）。反映される設定:
+脆弱性アラート（Dependabot alerts）・自動セキュリティ修正・ブランチ保護
+（`.github/branch-protection.json`）を有効化します（実体は
+`scripts/apply-repo-settings.sh`）。反映される設定:
 
 - マージ済みブランチの自動削除
 - 自動マージの有効化
 - squash merge のみ許可（merge commit / rebase merge は無効化）
 - Wiki を無効化
 - 脆弱性アラートと自動セキュリティ修正の有効化
+- デフォルトブランチへのマージに CI（`.github/workflows/ci.yml` の `test`
+  ジョブ）のステータスチェック通過を必須化
 
 リポジトリ設定の変更には admin 権限が必要です。自分の `gh` 認証（新しく生成した
 リポジトリの owner/admin であるはず）でそのまま実行できます。設定内容を変えたい
 場合は `.github/repo-settings.json` を編集してください（[利用可能なフィールド一覧](https://docs.github.com/en/rest/repos/repos#update-a-repository)）。
-ブランチ保護ルールなど、プロジェクトによって好みが分かれる設定はあえて含めて
-いないので、必要なら `scripts/apply-repo-settings.sh` に `gh api` 呼び出しを
-追記してください。
+
+`.github/branch-protection.json` の `required_status_checks.checks[].context`
+は `ci.yml` の `jobs.test`（ジョブ ID）と一致させる必要があります。GitHub の
+必須ステータスチェックは「ジョブの `name` フィールド（無ければジョブ ID）」を
+そのまま `context` として使い、ワークフロー名は付与されないことを確認済みです。
+`ci.yml` 側でジョブ ID や `name` を変えたら、こちらも合わせて書き換えてください。
+レビュー必須化やpush制限など、プロジェクトによって好みが分かれる設定はあえて
+含めていないので、必要なら `scripts/apply-repo-settings.sh` に `gh api` 呼び出しを
+追記するか `branch-protection.json` に項目を足してください。
 
 GitHub Actions 上で自動実行する方式（`push` イベント + `is_template` での判定）も
 検討しましたが、リポジトリ設定の変更には admin 権限が要るのに `GITHUB_TOKEN` には
