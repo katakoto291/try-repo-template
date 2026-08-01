@@ -33,7 +33,9 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 
 ## ツールチェイン
 
-- **バージョン管理**: [mise](https://mise.jdx.dev/)（`mise.toml` に Node / pnpm のバージョンを固定）
+- **バージョン管理**: [mise](https://mise.jdx.dev/)（`mise.toml` に Node / pnpm のバージョンを固定。
+  `package.json` の `packageManager` フィールドはあえて書いていません。バージョンの
+  正を `mise.toml` 一箇所に保つためです）
 - **パッケージマネージャ**: pnpm workspaces（pnpm 固有の設定は `.npmrc` ではなく
   `pnpm-workspace.yaml` に一本化。理由は後述）
 - **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
