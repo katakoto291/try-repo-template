@@ -2,17 +2,27 @@ packages:
   - "frontend"
   - "backend"
   - "shared"
+
+# dependencies' postinstall/prepare/build scripts are disabled by default;
+# see README for the allowBuilds allowlist mechanism when a script is
+# actually needed
+ignoreScripts: true
+engineStrict: true
+
 allowBuilds:
   esbuild: false
   lefthook: false
 
+# supply-chain cooldown: refuse to install a package version until it has
+# been publicly available for this many minutes (4320 = 3 days)
+minimumReleaseAge: 4320
+
 # Without this, an explicit `pnpm add <pkg>@<fresh-version>` silently bypasses
-# the minimum-release-age cooldown (.npmrc) and auto-whitelists itself into
+# the minimumReleaseAge cooldown above and auto-whitelists itself into
 # minimumReleaseAgeExclude below. Strict mode makes it a hard error instead.
 minimumReleaseAgeStrict: true
 
-# Packages exempt from the minimum-release-age cooldown set in .npmrc
+# Packages exempt from the minimumReleaseAge cooldown above
 # (e.g. your own scoped packages that you need to pull immediately after publish).
-# This list only works here, not in .npmrc.
 # minimumReleaseAgeExclude:
 #   - "@your-org/*"
