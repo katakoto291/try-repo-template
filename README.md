@@ -81,6 +81,13 @@ install script 経由の自動セットアップ（husky の `prepare` script �
 
 ## モジュール解決の注意
 
-TypeScript の `moduleResolution: "NodeNext"` を使用しているため、
-同一パッケージ内の相対 import には拡張子 `.js` を明示する必要があります
-（例: `import { foo } from "./foo.js"`、ソースは `foo.ts` のままで問題ありません）。
+TypeScript は `moduleResolution: "bundler"` を使用しているため、相対 import に
+拡張子を付ける必要はありません（`import { foo } from "./foo"` のように書けます）。
+
+ただし `tsc -b` は型チェック用の import 指定をそのまま出力に転写するだけなので、
+`dist/` 配下のコンパイル済み JS を素の `node` で直接実行すると、Node の ESM ローダーは
+拡張子なしの相対 import を解決できずエラーになります。現状このテンプレートには
+`tsc -b` による型チェック/宣言ファイル生成しかなく、コンパイル済み JS を直接実行する
+ステップは含まれていません。将来サーバーの起動コマンドなどを追加する場合は、
+`tsx` や esbuild/rollup などバンドラー系のランタイムで実行してください
+（それらは拡張子なしの相対 import を解決できます）。
