@@ -28,14 +28,18 @@ for (const path of packageJsonPaths) {
     for (const [name, spec] of Object.entries(deps)) {
       if (isWorkspaceProtocol(spec) || isExactVersion(spec)) continue;
 
-      console.error(`${path}: ${field}["${name}"] = "${spec}" is not pinned to an exact version`);
+      console.error(
+        `${path}: ${field}["${name}"] = "${spec}" is not pinned to an exact version`,
+      );
       hasError = true;
     }
   }
 }
 
 if (hasError) {
-  console.error("\nAll dependency versions must be pinned exactly (no ^, ~, or other ranges).");
+  console.error(
+    "\nAll dependency versions must be pinned exactly (no ^, ~, or other ranges).",
+  );
   process.exit(1);
 }
 
