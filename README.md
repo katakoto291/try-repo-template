@@ -87,8 +87,12 @@ pnpm run setup-repo-settings
 - squash merge のみ許可（merge commit / rebase merge は無効化）
 - Wiki を無効化
 - 脆弱性アラートと自動セキュリティ修正の有効化
-- デフォルトブランチへのマージに CI（`.github/workflows/ci.yml` の `test`
-  ジョブ）のステータスチェック通過を必須化
+- デフォルトブランチへのマージに以下を必須化（`.github/branch-protection.json`）
+  - CI（`.github/workflows/ci.yml` の `test` ジョブ）のステータスチェック通過
+  - 承認レビュー 1 件以上（新しい commit が push されたら承認は取り消し。
+    CODEOWNERS は前提にしていないので `require_code_owner_reviews` は無効）
+  - PR 内の会話（レビューコメント）がすべて resolve 済みであること
+  - デフォルトブランチへの force push・削除を禁止
 
 リポジトリ設定の変更には admin 権限が必要です。自分の `gh` 認証（新しく生成した
 リポジトリの owner/admin であるはず）でそのまま実行できます。設定内容を変えたい
@@ -99,9 +103,11 @@ pnpm run setup-repo-settings
 必須ステータスチェックは「ジョブの `name` フィールド（無ければジョブ ID）」を
 そのまま `context` として使い、ワークフロー名は付与されないことを確認済みです。
 `ci.yml` 側でジョブ ID や `name` を変えたら、こちらも合わせて書き換えてください。
-レビュー必須化やpush制限など、プロジェクトによって好みが分かれる設定はあえて
-含めていないので、必要なら `scripts/apply-repo-settings.sh` に `gh api` 呼び出しを
-追記するか `branch-protection.json` に項目を足してください。
+`enforce_admins` は `false` にしているので、admin 権限を持つ人はこれらの
+チェックを無視して直接マージ・push できます（1 人プロジェクトなどでの
+逃げ道として）。全員に強制したい場合は `true` に変えてください。
+`restrictions`（push できるユーザー/チームの制限）は `null` のままにしています。
+必要なら `branch-protection.json` に項目を足してください（[利用可能なフィールド一覧](https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection)）。
 
 GitHub Actions 上で自動実行する方式（`push` イベント + `is_template` での判定）も
 検討しましたが、リポジトリ設定の変更には admin 権限が要るのに `GITHUB_TOKEN` には
