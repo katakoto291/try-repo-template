@@ -12,7 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev:backend": "tsx watch backend/src/index.ts",
-    "dev:frontend": "tsx watch frontend/src/index.ts",
+    "dev:frontend": "tsx watch --tsconfig frontend/tsconfig.json frontend/src/index.ts",
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "check:versions": "node scripts/check-exact-versions.mjs",
