@@ -20,6 +20,7 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **パッケージマネージャ**: pnpm workspaces（pnpm 固有の設定は `.npmrc` ではなく
   `pnpm-workspace.yaml` に一本化。理由は後述）
 - **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
+- **`.ts` 直接実行**: [tsx](https://tsx.is/)（`pnpm run dev:backend` / `dev:frontend`）
 - **Lint / Format**: [Biome](https://biomejs.dev/)
 - **Git hooks**: [lefthook](https://lefthook.dev/)
 - **テスト**: [Vitest](https://vitest.dev/)
@@ -104,6 +105,8 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 | `pnpm run check:fix` | Biome で自動修正 |
 | `pnpm run check:versions` | 依存バージョンが完全固定かチェック |
 | `pnpm run build` | `tsc -b` でビルド |
+| `pnpm run dev:backend` | tsx で `backend/src/index.ts` を直接実行（watch モード） |
+| `pnpm run dev:frontend` | tsx で `frontend/src/index.ts` を直接実行（watch モード） |
 
 ## Git hooks
 
@@ -120,10 +123,15 @@ pre-commit フックがステージされた変更に対して `biome check --st
 TypeScript は `moduleResolution: "bundler"` を使用しているため、相対 import に
 拡張子を付ける必要はありません（`import { foo } from "./foo"` のように書けます）。
 
-ただし `tsc -b` は型チェック用の import 指定をそのまま出力に転写するだけなので、
+`tsc -b` は型チェック用の import 指定をそのまま出力に転写するだけなので、
 `dist/` 配下のコンパイル済み JS を素の `node` で直接実行すると、Node の ESM ローダーは
-拡張子なしの相対 import を解決できずエラーになります。現状このテンプレートには
-`tsc -b` による型チェック/宣言ファイル生成しかなく、コンパイル済み JS を直接実行する
-ステップは含まれていません。将来サーバーの起動コマンドなどを追加する場合は、
-`tsx` や esbuild/rollup などバンドラー系のランタイムで実行してください
-（それらは拡張子なしの相対 import を解決できます）。
+拡張子なしの相対 import を解決できずエラーになります。`pnpm run dev:backend` /
+`dev:frontend`（内部は [tsx](https://tsx.is/)）はソースの `.ts` を直接読んで
+esbuild で都度変換するため、この問題が起きません。実行したいエントリポイントが
+増えたら `tsx watch <path>` の形で `package.json` にスクリプトを足してください。
+
+`shared` パッケージは外部に公開せずこのモノレポ内でのみ参照する前提のため、
+`package.json` の `main`/`types`/`exports` はビルド後の `dist/` ではなく
+`src/index.ts` を直接指しています。これにより `tsx` や Vitest がビルド不要で
+即座にソースを解決できます（`tsc -b` によるビルド/宣言ファイル生成自体は
+`build`/`typecheck` スクリプトとして引き続き利用できます）。

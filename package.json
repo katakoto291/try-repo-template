@@ -12,6 +12,8 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
+    "dev:backend": "tsx watch backend/src/index.ts",
+    "dev:frontend": "tsx watch frontend/src/index.ts",
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "check:versions": "node scripts/check-exact-versions.mjs",
@@ -23,6 +25,7 @@
     "@types/node": "24.13.3",
     "@vitest/coverage-v8": "3.2.7",
     "lefthook": "2.1.10",
+    "tsx": "4.23.1",
     "typescript": "5.9.3",
     "vitest": "3.2.7"
   }
