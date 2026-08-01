@@ -9,6 +9,10 @@ packages:
 ignoreScripts: true
 engineStrict: true
 
+# always write exact versions (no ^ / ~) when running `pnpm add`;
+# CI/pre-commit additionally enforce this via scripts/check-exact-versions.mjs
+saveExact: true
+
 allowBuilds:
   esbuild: false
   lefthook: false
