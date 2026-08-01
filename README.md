@@ -12,7 +12,9 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 ```
 
 `shared` は pnpm workspace パッケージとして `frontend` / `backend` から
-`workspace:*` 依存として参照されます（`shared` という import 名で利用可能）。
+`workspace:*` 依存として参照されます（`@repo/shared` という import 名で利用可能）。
+無 scope の `shared` という名前だと将来同名の npm パッケージと衝突しうるため、
+`@repo/*` スコープを付けています。
 
 ## ツールチェイン
 
@@ -21,13 +23,15 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
   `pnpm-workspace.yaml` に一本化。理由は後述）
 - **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
 - **`.ts` 直接実行**: [tsx](https://tsx.is/)（`pnpm run dev:backend` / `dev:frontend`）
+- **UI**: React（`frontend` のみ。`tsconfig.json` で `jsx: "react-jsx"`、
+  `*.test.tsx` も Vitest の対象）
 - **Lint / Format**: [Biome](https://biomejs.dev/)
 - **Git hooks**: [lefthook](https://lefthook.dev/)
 - **テスト**: [Vitest](https://vitest.dev/)
 - **型チェック**: TypeScript（Project References による増分ビルド）
 - **CI**: バージョン固定チェック + 型チェック + テスト（`.github/workflows/ci.yml`）
-- **セキュリティ**: CodeQL 解析、Dependency Review（いずれもパブリックリポジトリで無料利用可）、
-  依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定、
+- **セキュリティ**: CodeQL 解析、Dependency Review（利用可否をジョブ内で実際にチェックしてから
+  実行。後述）、依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定、
   GitHub Actions のコミットハッシュ固定 + Dependabot（後述）
 
 ## セットアップ
@@ -110,7 +114,27 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 
 `.github/dependabot.yml` で `github-actions` エコシステムの週次アップデートを
 有効にしているので、新しいバージョンが出ればハッシュとバージョンコメントの両方を
-更新する PR が自動的に作成されます。
+更新する PR が自動的に作成されます。`package.json`（`npm` エコシステム）も同じ
+ファイルで月次アップデート対象にしており、`cooldown.default-days: 3` で
+`pnpm-workspace.yaml` の `minimumReleaseAge` と同じ 3 日を設定しています
+（揃えないと、CI の cooldown チェックで弾かれる更新 PR を Dependabot が
+提案してしまうため）。
+
+### CodeQL / Dependency Review の利用可否チェック
+
+どちらもパブリックリポジトリなら無料ですが、プライベートリポジトリでは
+GitHub Advanced Security（GHAS）が有効でないと使えません。将来このリポジトリが
+プライベートになる可能性を考慮し、各ワークフローの先頭に `check-eligibility`
+ジョブを置いて、本体のジョブは `needs` + `if` でその結果を見てから実行するように
+しています。
+
+ただし `security_and_analysis`（GHAS の有効状態）を読むには repo の admin 権限が
+必要で、`GITHUB_TOKEN` にはそもそも付与できる権限一覧に `administration` が
+存在しません。そのため実際にチェックできるのは「パブリックかどうか」だけで、
+プライベートかつ GHAS 有効という組み合わせは自動検出できず、常にスキップされます。
+その場合は該当ワークフローの `check-eligibility` ジョブ内のコメントに従って、
+`eligible=true` を無条件で返すように変更するか、リポジトリ変数などで
+明示的に上書きしてください。
 
 ## よく使うコマンド
 
@@ -130,10 +154,10 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 [lefthook](https://lefthook.dev/) を使用しています。設定は `lefthook.yml` で、
 pre-commit フックがステージされた変更に対して `biome check --staged` を実行します。
 
-クローン後に一度だけ `pnpm run setup-hooks`（内部で `lefthook install` を実行、
-`mise run setup-hooks` でも可）を実行してください。lefthook 自身の postinstall
-スクリプトは `lefthook install` を自動実行するものですが、`ignoreScripts: true`
-の方針と合わせるため意図的に無効化し、手動セットアップにしています。
+クローン後に一度だけ `pnpm run setup-hooks`（内部で `lefthook install` を実行）を
+実行してください。lefthook 自身の postinstall スクリプトは `lefthook install` を
+自動実行するものですが、`ignoreScripts: true` の方針と合わせるため意図的に
+無効化し、手動セットアップにしています。
 
 ## モジュール解決の注意
 
@@ -147,7 +171,7 @@ TypeScript は `moduleResolution: "bundler"` を使用しているため、相�
 esbuild で都度変換するため、この問題が起きません。実行したいエントリポイントが
 増えたら `tsx watch <path>` の形で `package.json` にスクリプトを足してください。
 
-`shared` パッケージは外部に公開せずこのモノレポ内でのみ参照する前提のため、
+`@repo/shared` パッケージは外部に公開せずこのモノレポ内でのみ参照する前提のため、
 `package.json` の `main`/`types`/`exports` はビルド後の `dist/` ではなく
 `src/index.ts` を直接指しています。これにより `tsx` や Vitest がビルド不要で
 即座にソースを解決できます（`tsc -b` によるビルド/宣言ファイル生成自体は

@@ -6,7 +6,6 @@
     "useIgnoreFile": true
   },
   "formatter": {
-    "indentStyle": "space",
-    "lineWidth": 100
+    "indentStyle": "space"
   }
 }

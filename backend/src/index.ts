@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { createGreeting } from "shared";
+import { createGreeting } from "@repo/shared";
 
 export const main = (): string => createGreeting("backend").message;
 

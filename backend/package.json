@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "shared": "workspace:*"
+    "@repo/shared": "workspace:*"
   }
 }
