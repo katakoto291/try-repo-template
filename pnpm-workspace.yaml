@@ -4,6 +4,12 @@ packages:
   - "shared"
 allowBuilds:
   esbuild: false
+  lefthook: false
+
+# Without this, an explicit `pnpm add <pkg>@<fresh-version>` silently bypasses
+# the minimum-release-age cooldown (.npmrc) and auto-whitelists itself into
+# minimumReleaseAgeExclude below. Strict mode makes it a hard error instead.
+minimumReleaseAgeStrict: true
 
 # Packages exempt from the minimum-release-age cooldown set in .npmrc
 # (e.g. your own scoped packages that you need to pull immediately after publish).

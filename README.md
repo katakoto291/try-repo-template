@@ -18,8 +18,9 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 
 - **バージョン管理**: [mise](https://mise.jdx.dev/)（`.mise.toml` に Node / pnpm のバージョンを固定）
 - **パッケージマネージャ**: pnpm workspaces
-- **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`、TS は `NodeNext`）
+- **モジュール形式**: ES Modules（各 `package.json` に `"type": "module"`）
 - **Lint / Format**: [Biome](https://biomejs.dev/)
+- **Git hooks**: [lefthook](https://lefthook.dev/)
 - **テスト**: [Vitest](https://vitest.dev/)
 - **型チェック**: TypeScript（Project References による増分ビルド）
 - **CI**: 型チェック + テスト（`.github/workflows/ci.yml`）
@@ -31,7 +32,7 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 ```sh
 mise install          # Node / pnpm をバージョン固定でインストール
 pnpm install           # 依存関係をインストール（install script は無効化済み）
-pnpm run setup-hooks    # pre-commit フックを有効化（git config core.hooksPath .githooks）
+pnpm run setup-hooks    # lefthook の git hooks を有効化（lefthook install）
 ```
 
 ### install script について
@@ -44,6 +45,7 @@ pnpm run setup-hooks    # pre-commit フックを有効化（git config core.hoo
 ```yaml
 allowBuilds:
   esbuild: false      # 明示的に拒否（デフォルト）
+  lefthook: false     # 拒否しても postinstall が自動実行する `lefthook install` を手動で行うだけ
   some-native-pkg: true  # 個別に許可する場合
 ```
 
@@ -53,10 +55,15 @@ allowBuilds:
 
 ### 依存の cooldown（供給網対策）
 
-`.npmrc` の `minimum-release-age=1440` により、公開されてから 24 時間
-（1440 分）未満のバージョンはインストールされません。公開直後に混入した
+`.npmrc` の `minimum-release-age=4320` により、公開されてから 72 時間
+（3 日 / 4320 分）未満のバージョンはインストールされません。公開直後に混入した
 悪意あるバージョンを踏むリスクを下げるための設定です。必要に応じて分単位で
 延長・短縮できます。
+
+`pnpm-workspace.yaml` で `minimumReleaseAgeStrict: true` も設定しています。
+これがないと `pnpm add <pkg>@<公開直後のバージョン>` のように明示的に指定した
+場合はcooldownをすり抜けて `minimumReleaseAgeExclude` に自動追加されてしまうため、
+strict モードで明示指定でも必ずエラーで止まるようにしています。
 
 自分たちのスコープ付きパッケージなど、公開直後でも即座に取得したいものは
 `.npmrc` ではなく `pnpm-workspace.yaml` の `minimumReleaseAgeExclude` に
@@ -68,16 +75,19 @@ allowBuilds:
 | --- | --- |
 | `pnpm run typecheck` | `tsc -b` で全ワークスペースを型チェック |
 | `pnpm run test` | Vitest でテスト実行 |
-| `pnpm run lint` | Biome で lint / format チェック |
-| `pnpm run lint:fix` | Biome で自動修正 |
+| `pnpm run check` | Biome で lint / format チェック |
+| `pnpm run check:fix` | Biome で自動修正 |
 | `pnpm run build` | `tsc -b` でビルド |
 
 ## Git hooks
 
-`.githooks/pre-commit` はステージされた変更に対して `biome check --staged` を実行します。
-クローン後に一度だけ `pnpm run setup-hooks`（または `mise run setup-hooks`）を実行してください。
-install script 経由の自動セットアップ（husky の `prepare` script 等）は
-`ignore-scripts=true` の方針とバッティングするため、意図的に手動セットアップにしています。
+[lefthook](https://lefthook.dev/) を使用しています。設定は `lefthook.yml` で、
+pre-commit フックがステージされた変更に対して `biome check --staged` を実行します。
+
+クローン後に一度だけ `pnpm run setup-hooks`（内部で `lefthook install` を実行、
+`mise run setup-hooks` でも可）を実行してください。lefthook 自身の postinstall
+スクリプトは `lefthook install` を自動実行するものですが、`ignore-scripts=true`
+の方針と合わせるため意図的に無効化し、手動セットアップにしています。
 
 ## モジュール解決の注意
 
