@@ -47,7 +47,7 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **`.ts` 直接実行**: [tsx](https://tsx.is/)（`pnpm run dev:backend` / `dev:frontend`）
 - **UI**: React（`frontend` のみ。`tsconfig.json` で `jsx: "react-jsx"`、
   `*.test.tsx` も Vitest の対象）。コンポーネントのテスト例として
-  `frontend/src/components/Greeting.tsx` と `frontend/src/Greeting.test.tsx`
+  `frontend/src/components/Greeting.tsx` と `frontend/src/components/Greeting.test.tsx`
   を用意しています（[Testing Library](https://testing-library.com/) +
   jsdom。テストファイル先頭の `// @vitest-environment jsdom` コメントで、
   この 1 ファイルだけ実行環境を `node` から `jsdom` に切り替えています）
@@ -283,3 +283,12 @@ prefix にしているのは、frontend/backend 間の import を禁止してい
 Vitest・`tsc -b`・tsx の 3 つとも解決できることを確認してから、サンプルとして
 冗長になるため取り下げています（現状は `@frontend/*`/`@backend/*` それぞれ
 1 本のみ）。
+
+### テストファイルの置き場所と import
+
+テスト対象と同じディレクトリにテストファイルを置き、テスト対象そのものは
+相対パスで import します（例: `frontend/src/components/Greeting.tsx` と
+`frontend/src/components/Greeting.test.tsx` を同じ場所に置き、後者は
+`import { Greeting } from "./Greeting"` とする）。エイリアス（`@frontend/`
+など）は、テスト対象以外の別ディレクトリのモジュールを参照するときに使う
+想定です。
