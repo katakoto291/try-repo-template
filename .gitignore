@@ -7,3 +7,15 @@ coverage
 
 mise.local.toml
 mise.*.local.toml
+
+# secrets / local config - never commit these
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*.local
