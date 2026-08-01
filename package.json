@@ -17,7 +17,8 @@
     "check:fix": "biome check --write .",
     "check:versions": "node scripts/check-exact-versions.mjs",
     "format": "biome format --write .",
-    "setup-hooks": "lefthook install"
+    "setup-hooks": "lefthook install",
+    "setup-repo-settings": "sh scripts/apply-repo-settings.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",

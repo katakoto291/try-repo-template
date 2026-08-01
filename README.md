@@ -61,50 +61,35 @@ pnpm run setup-hooks    # lefthook の git hooks を有効化（lefthook install
 
 ## GitHub の「テンプレートリポジトリ」として使う場合
 
-このリポジトリを「Use this template」で生成したときに、新しいリポジトリの設定
-（マージ方式、Wiki 無効化、脆弱性アラートなど）を自動でいい感じにする仕組みを
-`.github/workflows/template-setup.yml` に用意しています。
+「Use this template」で新しいリポジトリを生成したら、一度だけ次を実行してください
+（[GitHub CLI](https://cli.github.com/) が必要。未認証なら先に `gh auth login`）。
 
-### 前提: このリポジトリ側で一度だけやること
+```sh
+pnpm run setup-repo-settings
+```
 
-GitHub の Settings → General → **Template repository** にチェックを入れてください。
-これをやっていないと、`template-setup.yml` は「テンプレートから生成された新しい
-リポジトリ」と「テンプレート自身（このリポジトリ）」を区別できず、**このリポジトリ
-自身への次回 push で誤って自己削除しようとします**（後述の仕組み参照）。
-
-### 仕組み
-
-GitHub には「テンプレートから生成された」ことを検知する専用のイベントが存在しません
-（[公式コミュニティディスカッションで明言済み](https://github.com/orgs/community/discussions/52965)）。
-そのため `template-setup.yml` は毎回の `push` で起動しつつ、
-`github.event.repository.is_template` を見て次のように動作を分けています。
-
-- テンプレート自身（`is_template: true`）: 何もしない
-- テンプレートから生成された新しいリポジトリ（`is_template: false`）: 設定を反映し、
-  最後に自分自身（このワークフローファイル）を削除するコミットを push します。
-  これにより 2 回目以降の push では起動すらしなくなります。
-
-### 設定変更には admin 権限の PAT が必要
-
-リポジトリ設定（マージ方式、Wiki、脆弱性アラートなど）を API から変更するには
-リポジトリの admin 権限が必要ですが、`GITHUB_TOKEN` にはその権限を一切付与でき
-ません（`administration` という permission scope 自体が存在しないため。詳細は
-CodeQL/Dependency Review の項を参照）。そのため、新しいリポジトリの Settings →
-Secrets and variables → Actions で **`TEMPLATE_SETUP_TOKEN`** という名前の
-シークレットに、admin 権限を持つ Personal Access Token（Fine-grained PAT の
-"Administration: write" など）を登録してください。登録しなければ設定変更は
-スキップされますが、ワークフロー自身の自己削除は行われます。
-
-反映される設定（`template-setup.yml` 内で調整可能）:
+`.github/repo-settings.json` の内容を `gh api` で現在のリポジトリに反映し、
+続けて脆弱性アラート（Dependabot alerts）と自動セキュリティ修正を有効化します
+（実体は `scripts/apply-repo-settings.sh`）。反映される設定:
 
 - マージ済みブランチの自動削除
 - 自動マージの有効化
 - squash merge のみ許可（merge commit / rebase merge は無効化）
 - Wiki を無効化
-- 脆弱性アラート（Dependabot alerts）と自動セキュリティ修正を有効化
+- 脆弱性アラートと自動セキュリティ修正の有効化
 
+リポジトリ設定の変更には admin 権限が必要です。自分の `gh` 認証（新しく生成した
+リポジトリの owner/admin であるはず）でそのまま実行できます。設定内容を変えたい
+場合は `.github/repo-settings.json` を編集してください（[利用可能なフィールド一覧](https://docs.github.com/en/rest/repos/repos#update-a-repository)）。
 ブランチ保護ルールなど、プロジェクトによって好みが分かれる設定はあえて含めて
-いません。必要なら同じ `gh api` の要領で `template-setup.yml` に追記してください。
+いないので、必要なら `scripts/apply-repo-settings.sh` に `gh api` 呼び出しを
+追記してください。
+
+GitHub Actions 上で自動実行する方式（`push` イベント + `is_template` での判定）も
+検討しましたが、リポジトリ設定の変更には admin 権限が要るのに `GITHUB_TOKEN` には
+それを付与できず（`administration` という permission scope 自体が存在しない）、
+admin 権限の PAT を Secrets に登録してもらう必要があるなど手間が増えるだけだった
+ため、素直にユーザー自身が一度実行する形にしています。
 
 ### なぜ `.npmrc` ではなく `pnpm-workspace.yaml` なのか
 
