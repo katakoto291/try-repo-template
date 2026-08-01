@@ -24,9 +24,9 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **Git hooks**: [lefthook](https://lefthook.dev/)
 - **テスト**: [Vitest](https://vitest.dev/)
 - **型チェック**: TypeScript（Project References による増分ビルド）
-- **CI**: 型チェック + テスト（`.github/workflows/ci.yml`）
+- **CI**: バージョン固定チェック + 型チェック + テスト（`.github/workflows/ci.yml`）
 - **セキュリティ**: CodeQL 解析、Dependency Review（いずれもパブリックリポジトリで無料利用可）、
-  依存パッケージの install script 無効化、pnpm cooldown（後述）
+  依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定（後述）
 
 ## セットアップ
 
@@ -81,6 +81,19 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 自分たちのスコープ付きパッケージなど、公開直後でも即座に取得したいものは
 `pnpm-workspace.yaml` の `minimumReleaseAgeExclude` に書いてください。
 
+### 依存バージョンの完全固定
+
+すべての `package.json` の依存は `^`/`~` の無い完全固定バージョン
+（例: `"typescript": "5.9.3"`）で書きます。`pnpm-workspace.yaml` の
+`saveExact: true` により `pnpm add`/`pnpm update` は常に完全固定で書き込みますが、
+手で `^1.2.3` のように書き換えてしまう事故は防げないため、
+`scripts/check-exact-versions.mjs` で全 `package.json` を走査し、完全固定でない
+バージョンがあればエラーにしています（`pnpm run check:versions`）。
+
+このチェックは CI と lefthook の pre-commit（`package.json` が変更された時のみ）
+の両方で強制しています。`workspace:*` はローカルパッケージ間の参照であり
+外部レジストリの供給網リスクとは無関係なため、このチェックの対象外です。
+
 ## よく使うコマンド
 
 | コマンド | 内容 |
@@ -89,6 +102,7 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 | `pnpm run test` | Vitest でテスト実行 |
 | `pnpm run check` | Biome で lint / format チェック |
 | `pnpm run check:fix` | Biome で自動修正 |
+| `pnpm run check:versions` | 依存バージョンが完全固定かチェック |
 | `pnpm run build` | `tsc -b` でビルド |
 
 ## Git hooks
