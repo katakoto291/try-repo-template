@@ -4,6 +4,6 @@ export type GreetingProps = {
   name: string;
 };
 
-export const Greeting = ({ name }: GreetingProps) => (
-  <p>{createGreeting(name).message}</p>
-);
+export function Greeting({ name }: GreetingProps) {
+  return <p>{createGreeting(name).message}</p>;
+}
