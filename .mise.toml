@@ -1,0 +1,19 @@
+[tools]
+node = "22"
+pnpm = "9.15.1"
+
+[tasks.lint]
+description = "Run biome check"
+run = "biome check ."
+
+[tasks.typecheck]
+description = "Typecheck all workspaces via TypeScript project references"
+run = "tsc -b"
+
+[tasks.test]
+description = "Run vitest across all workspaces"
+run = "vitest run"
+
+[tasks.setup-hooks]
+description = "Point git at the versioned hooks directory (run once after clone)"
+run = "git config core.hooksPath .githooks"
