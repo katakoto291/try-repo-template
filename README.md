@@ -23,7 +23,8 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **テスト**: [Vitest](https://vitest.dev/)
 - **型チェック**: TypeScript（Project References による増分ビルド）
 - **CI**: 型チェック + テスト（`.github/workflows/ci.yml`）
-- **セキュリティ**: CodeQL 解析、Dependency Review（いずれもパブリックリポジトリで無料利用可）
+- **セキュリティ**: CodeQL 解析、Dependency Review（いずれもパブリックリポジトリで無料利用可）、
+  依存パッケージの install script 無効化、pnpm cooldown（後述）
 
 ## セットアップ
 
@@ -37,9 +38,29 @@ pnpm run setup-hooks    # pre-commit フックを有効化（git config core.hoo
 
 `.npmrc` で `ignore-scripts=true` を設定し、依存パッケージのライフサイクルスクリプト
 （`postinstall` など）を実行しないようにしています。ビルドスクリプトの実行が
-必要なパッケージがある場合は、無効化を解除する代わりに pnpm の
-[`pnpm.onlyBuiltDependencies`](https://pnpm.io/settings#onlybuiltdependencies)
-でパッケージ単位に許可リストを追加してください。
+必要なパッケージがある場合は、無効化を解除する代わりに `pnpm-workspace.yaml` の
+[`allowBuilds`](https://pnpm.io/settings#allowbuilds) でパッケージ単位に許可してください。
+
+```yaml
+allowBuilds:
+  esbuild: false      # 明示的に拒否（デフォルト）
+  some-native-pkg: true  # 個別に許可する場合
+```
+
+`pnpm install` 時にビルドスクリプトを要求する新しい依存が追加されると
+`ERR_PNPM_IGNORED_BUILDS` で止まるので、内容を確認したうえで
+`allowBuilds` に `true`/`false` を明示してください（`pnpm approve-builds` でも追加できます）。
+
+### 依存の cooldown（供給網対策）
+
+`.npmrc` の `minimum-release-age=1440` により、公開されてから 24 時間
+（1440 分）未満のバージョンはインストールされません。公開直後に混入した
+悪意あるバージョンを踏むリスクを下げるための設定です。必要に応じて分単位で
+延長・短縮できます。
+
+自分たちのスコープ付きパッケージなど、公開直後でも即座に取得したいものは
+`.npmrc` ではなく `pnpm-workspace.yaml` の `minimumReleaseAgeExclude` に
+書く必要があります（`.npmrc` では効きません）。
 
 ## よく使うコマンド
 

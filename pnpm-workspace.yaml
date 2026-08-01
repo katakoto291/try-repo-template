@@ -2,3 +2,11 @@ packages:
   - "frontend"
   - "backend"
   - "shared"
+allowBuilds:
+  esbuild: false
+
+# Packages exempt from the minimum-release-age cooldown set in .npmrc
+# (e.g. your own scoped packages that you need to pull immediately after publish).
+# This list only works here, not in .npmrc.
+# minimumReleaseAgeExclude:
+#   - "@your-org/*"
