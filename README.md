@@ -27,7 +27,8 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **型チェック**: TypeScript（Project References による増分ビルド）
 - **CI**: バージョン固定チェック + 型チェック + テスト（`.github/workflows/ci.yml`）
 - **セキュリティ**: CodeQL 解析、Dependency Review（いずれもパブリックリポジトリで無料利用可）、
-  依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定（後述）
+  依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定、
+  GitHub Actions のコミットハッシュ固定 + Dependabot（後述）
 
 ## セットアップ
 
@@ -94,6 +95,18 @@ strict モードで明示指定でも必ずエラーで止まるようにして�
 このチェックは CI と lefthook の pre-commit（`package.json` が変更された時のみ）
 の両方で強制しています。`workspace:*` はローカルパッケージ間の参照であり
 外部レジストリの供給網リスクとは無関係なため、このチェックの対象外です。
+
+### GitHub Actions のバージョン固定
+
+`.github/workflows/*.yml` の `uses:` はすべて `@v4` のような可変タグではなく、
+コミットハッシュで固定しています（例: `actions/checkout@11d5960a... # v4.4.0`）。
+可変タグは同じタグ名のまま参照先のコードが差し替えられうるため、CI 上でリポジトリの
+シークレットにアクセスできる Action は特に固定しておくのが安全です。バージョン番号は
+コメントとして残しています。
+
+`.github/dependabot.yml` で `github-actions` エコシステムの週次アップデートを
+有効にしているので、新しいバージョンが出ればハッシュとバージョンコメントの両方を
+更新する PR が自動的に作成されます。
 
 ## よく使うコマンド
 
