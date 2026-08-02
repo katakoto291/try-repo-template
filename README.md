@@ -256,6 +256,15 @@ pnpm run new-adr -- "タイトル"
 生成します（実体は `scripts/new-adr.sh`）。手でコピーしても構いません。
 PR テンプレートにも ADR 追加のチェック項目があります。
 
+このスクリプトは番号採番とファイル生成という機械的な部分だけを担当していて、
+Context/Decision/Consequences の中身は自分で書く必要があります。
+Claude Code を使っている場合は `.claude/skills/adr/SKILL.md`（`/adr`）が
+その中身のドラフトを手伝います。直前の会話や PR での議論内容をもとに
+Context/Decision/Consequences を埋めた上でスクリプトを呼び出しますが、
+最終的な内容は必ず自分で確認してからコミットしてください（ドラフトが
+そのまま正しいとは限りません）。Claude Code を使わない・使えない場合は
+`pnpm run new-adr` だけでも機能します。
+
 ## Git hooks
 
 [lefthook](https://lefthook.dev/) を使用しています。設定は `lefthook.yml` で、
