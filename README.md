@@ -149,6 +149,13 @@ TypeScript 版では `pnpm run new-adr -- "タイトル"` という pnpm ラッ�
 ファイルだけを対象にできましたが、`dotnet format` にはステージ済みファイル
 だけを対象にする仕組みが無く、ソリューション全体を毎回チェックします。
 
+**未解決の課題**: TypeScript 版では lefthook 自体を pnpm 経由
+（`node_modules/.bin/lefthook`）でインストールしていました。この C# 版には
+npm 相当のローカルインストール手段が無いため、lefthook 本体は各自
+[公式の別インストール方法](https://lefthook.dev/installation/)（Homebrew /
+Go install / 単体バイナリなど）で用意する必要があります。この試作では未検証
+です。
+
 ## この試作で分かったこと（共通 vs エコシステム固有）
 
 **ほぼ無改造で流用できた（= 言語非依存の「共通部分」）**:

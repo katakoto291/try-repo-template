@@ -94,3 +94,7 @@ ADR の仕組み一式（`docs/adr/`、`scripts/new-adr.sh`）。ただし
 - この試作は `try/csharp-template` ブランチのみに閉じており、
   `main`/`claude/repository-template-setup-wsluce` 側には影響しない。
   正式に「共通 + 言語別」構成へ移行するかどうかは別途判断が必要。
+- lefthook 本体のインストール手段が TypeScript 版は pnpm
+  （`node_modules/.bin/lefthook`）任せだったため、C# 版には npm 相当の
+  ローカルインストール手段が無い。各自 Homebrew/Go install/単体バイナリ
+  などで用意する前提になっており、この試作では未検証（フォローアップ）。
