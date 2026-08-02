@@ -20,7 +20,6 @@
 
 <!-- 変更が関係するパッケージにチェックを入れてください -->
 
-- [ ] `frontend`
 - [ ] `backend`
 - [ ] `shared`
 - [ ] CI / ワークフロー（`.github/`）
@@ -30,12 +29,10 @@
 
 <!-- 実際に手元で実行・確認したものにチェックを入れてください -->
 
-- [ ] `pnpm run check`（lint / format）
-- [ ] `pnpm run check:versions`（依存バージョンが完全固定になっているか）
-- [ ] `pnpm run typecheck`
-- [ ] `pnpm run test`
-- [ ] `pnpm run build`
-- [ ] UI に関わる変更は実際に動かして目視確認した
+- [ ] `dotnet format --verify-no-changes`（lint / format）
+- [ ] `sh scripts/check-exact-versions.sh`（依存バージョンが完全固定になっているか）
+- [ ] `dotnet build`
+- [ ] `dotnet test`
 
 ## スクリーンショット（UI の変更がある場合）
 
@@ -46,7 +43,7 @@
 <!--
   「なぜこうしたか」を後から聞かれそうな判断（技術選定、ライブラリの
   採用・変更、アーキテクチャの変更など）を含む場合は、この PR に
-  docs/adr/ の ADR を追加してください（`pnpm run new-adr -- "タイトル"`）。
+  docs/adr/ の ADR を追加してください（`sh scripts/new-adr.sh "タイトル"`）。
   該当しなければこのセクションは削除して OK です。
 -->
 

@@ -7,8 +7,8 @@ description: Draft a new Architecture Decision Record (ADR) in docs/adr/ from a 
 
 This repo keeps Architecture Decision Records in `docs/adr/` (see
 `docs/adr/0001-record-architecture-decisions.md` for the convention this
-skill follows). A plain scaffolding script (`scripts/new-adr.sh`, wired up
-as `pnpm run new-adr -- "title"`) already handles the mechanical part - the
+skill follows). A plain scaffolding script (`scripts/new-adr.sh "title"`)
+already handles the mechanical part - the
 next sequence number, the filename, today's date. What it can't do is know
 what was actually discussed. That's this skill's job: turn a decision that
 just got made in this conversation into a properly filled-out ADR, not just
@@ -36,7 +36,7 @@ skip it.
    drifting out of sync if that logic ever changes:
 
    ```sh
-   pnpm run new-adr -- "<title>"
+   sh scripts/new-adr.sh "<title>"
    ```
 
    Note the path it prints.

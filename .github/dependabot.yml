@@ -11,24 +11,13 @@ updates:
         patterns:
           - "*"
 
-  - package-ecosystem: "npm"
+  - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "monthly"
     cooldown:
       default-days: 3
     groups:
-      react:
-        patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
-      dev-tooling:
+      nuget:
         patterns:
           - "*"
-        exclude-patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"

@@ -1,12 +1,9 @@
-node_modules
-dist
-*.tsbuildinfo
-coverage
+bin/
+obj/
+*.user
+.vs/
 .DS_Store
 *.log
-
-mise.local.toml
-mise.*.local.toml
 
 # secrets / local config - never commit these
 .env

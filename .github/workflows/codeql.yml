@@ -41,7 +41,7 @@ jobs:
   analyze:
     needs: check-eligibility
     if: needs.check-eligibility.outputs.eligible == 'true'
-    name: Analyze (javascript-typescript)
+    name: Analyze (csharp)
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -53,12 +53,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@ea14db8afdef5d462e69d78c4ca45002d4522418 # v4.37.4
         with:
-          languages: javascript-typescript
+          languages: csharp
+
+      # C# is a compiled language, unlike JS/TS: CodeQL needs an actual
+      # build to observe, so autobuild replaces the plain analyze-only step.
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@ea14db8afdef5d462e69d78c4ca45002d4522418 # v4.37.4
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@ea14db8afdef5d462e69d78c4ca45002d4522418 # v4.37.4
         with:
-          category: "/language:javascript-typescript"
+          category: "/language:csharp"

@@ -2,19 +2,19 @@
 # Scaffolds a new ADR from docs/adr/template.md with the next sequence
 # number and today's date.
 #
-# Usage: pnpm run new-adr -- "Title of the decision"
+# Usage: sh scripts/new-adr.sh "Title of the decision"
 set -eu
 
-# `pnpm run new-adr -- "title"` forwards the "--" itself as $1, unlike
-# some other package managers - drop it if present so this works the
-# same whether or not "--" was passed.
+# Some package-manager wrappers (e.g. `pnpm run new-adr -- "title"`) forward
+# the "--" itself as $1 - drop it if present so this works the same whether
+# or not it's called through such a wrapper.
 if [ "${1:-}" = "--" ]; then
   shift
 fi
 
 title="${1:-}"
 if [ -z "$title" ]; then
-  echo "Usage: pnpm run new-adr -- \"Title of the decision\"" >&2
+  echo "Usage: sh scripts/new-adr.sh \"Title of the decision\"" >&2
   exit 1
 fi
 
