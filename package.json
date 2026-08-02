@@ -1,0 +1,39 @@
+{
+  "name": "try-repo-template",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev:backend": "tsx watch --tsconfig backend/tsconfig.json backend/src/index.ts",
+    "dev:frontend": "tsx watch --tsconfig frontend/tsconfig.json frontend/src/index.ts",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "check:versions": "node scripts/check-exact-versions.mjs",
+    "format": "biome format --write .",
+    "setup-hooks": "lefthook install",
+    "setup-repo-settings": "sh scripts/apply-repo-settings.sh",
+    "new-adr": "sh scripts/new-adr.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.6",
+    "@testing-library/jest-dom": "7.0.0",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.13.3",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@vitest/coverage-v8": "4.1.10",
+    "jsdom": "30.0.1",
+    "lefthook": "2.1.10",
+    "tsx": "4.23.1",
+    "typescript": "7.0.2",
+    "vite-tsconfig-paths": "6.1.1",
+    "vitest": "4.1.10"
+  }
+}

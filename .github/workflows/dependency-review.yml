@@ -1,0 +1,49 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check-eligibility:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      eligible: ${{ steps.check.outputs.eligible }}
+    steps:
+      # Dependency Review is free on public repos. On a private repo it
+      # requires GitHub Advanced Security, but checking that status needs
+      # repo-admin access, which GITHUB_TOKEN cannot be granted (there is no
+      # "administration" permission scope for it) - so we can only reliably
+      # check public/private here. If this repo ever goes private *with*
+      # GHAS enabled, change the condition below to `eligible=true`
+      # unconditionally, or gate it on a repository variable instead.
+      - name: Check whether Dependency Review is usable
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          private=$(gh api "repos/$REPO" --jq '.private')
+          if [ "$private" = "false" ]; then
+            echo "Public repo: Dependency Review is free to use."
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Repository is private; Dependency Review needs GitHub Advanced Security, which can't be auto-detected with GITHUB_TOKEN. Skipping. See this workflow's comments to override."
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  dependency-review:
+    needs: check-eligibility
+    if: needs.check-eligibility.outputs.eligible == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
