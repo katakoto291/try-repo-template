@@ -236,6 +236,25 @@ GitHub Advanced Security（GHAS）が有効でないと使えません。将来�
 | `pnpm run build` | `tsc -b` でビルド |
 | `pnpm run dev:backend` | tsx で `backend/src/index.ts` を直接実行（watch モード） |
 | `pnpm run dev:frontend` | tsx で `frontend/src/index.ts` を直接実行（watch モード） |
+| `pnpm run new-adr -- "タイトル"` | 新しい ADR（`docs/adr/`）を雛形から生成 |
+
+## ADR（Architecture Decision Record）
+
+PR やレビューで議論して決まった設計判断のうち、「後から理由を聞かれそうなもの」
+（技術選定、ライブラリの採用・変更、アーキテクチャに関わる決定など）は
+`docs/adr/` に記録します。書き方や運用ルールは最初の ADR
+（[`docs/adr/0001-record-architecture-decisions.md`](docs/adr/0001-record-architecture-decisions.md)）
+自体に書いてあります（"ADR を残す" という決定自体を ADR にしています）。
+
+新しい ADR を作るには:
+
+```sh
+pnpm run new-adr -- "タイトル"
+```
+
+`docs/adr/template.md` から次の連番（`NNNN`）で `docs/adr/NNNN-slug.md` を
+生成します（実体は `scripts/new-adr.sh`）。手でコピーしても構いません。
+PR テンプレートにも ADR 追加のチェック項目があります。
 
 ## Git hooks
 

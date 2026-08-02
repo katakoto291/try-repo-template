@@ -18,7 +18,8 @@
     "check:versions": "node scripts/check-exact-versions.mjs",
     "format": "biome format --write .",
     "setup-hooks": "lefthook install",
-    "setup-repo-settings": "sh scripts/apply-repo-settings.sh"
+    "setup-repo-settings": "sh scripts/apply-repo-settings.sh",
+    "new-adr": "sh scripts/new-adr.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.6",
