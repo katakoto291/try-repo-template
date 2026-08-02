@@ -16,7 +16,10 @@ default_branch=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.nam
 echo "Applying $(pwd)/.github/repo-settings.json to $repo..."
 gh api -X PATCH "repos/$repo" --input .github/repo-settings.json
 
-echo "Enabling vulnerability alerts and automated security fixes..."
+# GitHub には Dependency graph 単体を有効化する API が無く、vulnerability-alerts
+# エンドポイントを叩くと Dependency graph と Dependabot alerts が一緒に有効化される
+# 仕様になっている（UI では個別に切り替えられるが、API では分離不可）。
+echo "Enabling vulnerability alerts, dependency graph, and automated security fixes..."
 gh api -X PUT "repos/$repo/vulnerability-alerts"
 gh api -X PUT "repos/$repo/automated-security-fixes"
 

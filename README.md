@@ -80,15 +80,17 @@ pnpm run setup-repo-settings
 ```
 
 `.github/repo-settings.json` の内容を `gh api` で現在のリポジトリに反映し、
-脆弱性アラート（Dependabot alerts）・自動セキュリティ修正・ブランチ保護
-（`.github/branch-protection.json`）を有効化します（実体は
+脆弱性アラート（Dependabot alerts）・Dependency graph・自動セキュリティ修正・
+ブランチ保護（`.github/branch-protection.json`）を有効化します（実体は
 `scripts/apply-repo-settings.sh`）。反映される設定:
 
 - マージ済みブランチの自動削除
 - 自動マージの有効化
 - squash merge のみ許可（merge commit / rebase merge は無効化）
 - Wiki を無効化
-- 脆弱性アラートと自動セキュリティ修正の有効化
+- 脆弱性アラートと自動セキュリティ修正の有効化（Dependency graph も同時に有効化
+  される。GitHub には Dependency graph だけを個別に有効化する API が無く、
+  vulnerability-alerts エンドポイントを叩くと両方まとめて有効になる仕様のため）
 - デフォルトブランチへのマージに以下を必須化（`.github/branch-protection.json`）
   - CI（`.github/workflows/ci.yml` の `test` ジョブ）のステータスチェック通過
   - 承認レビュー 1 件以上（新しい commit が push されたら承認は取り消し。
