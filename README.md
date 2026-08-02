@@ -4,8 +4,10 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 
 `.github/PULL_REQUEST_TEMPLATE.md`・`CODEOWNERS`・branch protection・
 repo settings・Dependency Review・ADR の仕組みなど、言語に依存しない部分は
-[`common`](../../tree/common) ブランチ由来です。C# 版など他言語のセット
-アップは [`common` の README](../../blob/common/README.md) を参照してください。
+[`common`](https://github.com/katakoto291/try-repo-template/tree/common)
+ブランチ由来です。C# 版など他言語のセットアップは
+[`common` の README](https://github.com/katakoto291/try-repo-template/blob/common/README.md)
+を参照してください。
 
 ## 構成
 
