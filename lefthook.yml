@@ -1,0 +1,7 @@
+pre-commit:
+  commands:
+    dotnet-format:
+      run: dotnet format --verify-no-changes
+    exact-versions:
+      glob: "*.{props,csproj}"
+      run: sh scripts/check-exact-versions.sh
