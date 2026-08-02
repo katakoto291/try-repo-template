@@ -4,13 +4,13 @@
 ベースブランチです。単体では動くプロジェクトになりません。実際に使う
 テンプレートは、このブランチから派生した言語別ブランチを参照してください。
 
-- [`lang/typescript`](../../tree/lang/typescript) — TypeScript / pnpm workspaces 版
-- [`lang/csharp`](../../tree/lang/csharp) — C# / .NET 版
+- [`lang/typescript`](https://github.com/katakoto291/try-repo-template/tree/lang/typescript) — TypeScript / pnpm workspaces 版
+- [`lang/csharp`](https://github.com/katakoto291/try-repo-template/tree/lang/csharp) — C# / .NET 版
 
 ## このブランチに含まれるもの
 
 TypeScript 版と C# 版を実際に作って比較した結果
-（[`docs/adr/0002-*.md`](../../blob/lang/csharp/docs/adr/0002-use-asp-net-core-web-api-and-xunit-for-the-c-equivalent-template.md)
+（[`docs/adr/0002-*.md`](https://github.com/katakoto291/try-repo-template/blob/lang/csharp/docs/adr/0002-use-asp-net-core-web-api-and-xunit-for-the-c-equivalent-template.md)
 参照）、無改造でそのまま使い回せると確認できたファイルだけを置いています。
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — 全体の構成は共通。「影響範囲」
