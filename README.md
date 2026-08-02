@@ -59,6 +59,8 @@ TypeScript / pnpm workspaces を使ったモノレポテンプレートです。
 - **セキュリティ**: CodeQL 解析、Dependency Review（利用可否をジョブ内で実際にチェックしてから
   実行。後述）、依存パッケージの install script 無効化、pnpm cooldown、依存バージョンの完全固定、
   GitHub Actions のコミットハッシュ固定 + Dependabot（後述）
+- **PR テンプレート**: `.github/PULL_REQUEST_TEMPLATE.md`（目的・変更内容・動作確認の
+  チェックリストなど、初めて PR を出す人でも埋めやすい構成にしています）
 
 ## セットアップ
 
