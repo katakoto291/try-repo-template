@@ -1,8 +1,10 @@
 # try-repo-template (C# 版)
 
-`try-repo-template` の C# / .NET 版です。[`common`](../../tree/common)
+`try-repo-template` の C# / .NET 版です。
+[`common`](https://github.com/katakoto291/try-repo-template/tree/common)
 ブランチ（言語非依存の共通部分）から派生しています。TypeScript/pnpm 版は
-[`lang/typescript`](../../tree/lang/typescript) を参照してください。
+[`lang/typescript`](https://github.com/katakoto291/try-repo-template/tree/lang/typescript)
+を参照してください。
 
 このブランチは元々 `try/csharp-template` で TypeScript 版との比較検証として
 作られたものを `common` 派生の構成に組み替えたものです。検証の詳しい経緯・
